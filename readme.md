@@ -60,7 +60,7 @@ url for the resource they reserved and by using the qua
 
 # How to deploy Quartermaster
 
-    git clone https://github.com/timdaman/quartermaster.git
+    git clone git@github.com:usb-quartermaster/USB_Quartermaster_server.git
     cd quartermaster
     deploy/build_docker_images.sh
     # Add you own certs or use the command below to generate self signed test certs
