@@ -97,3 +97,5 @@ Move drivers to plugin model
     Make USB_Quartermaster_common package with
         doc
     Figure out how to impliment integration plug-ins
+
+Figure out how to handle plugins without hard coding them into deployment image
