@@ -58,7 +58,7 @@ A `client` which attached a remote USB device to use it
 url for the resource they reserved and by using the qua
 
 
-# How to deploy Quartermaster
+# How to deploy Quartermaster Server
 
     git clone git@github.com:usb-quartermaster/USB_Quartermaster_server.git
     cd quartermaster

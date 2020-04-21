@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @db_periodic_task(crontab(minute='*'))
 @lock_task('update_reservations')
 def update_reservations():
-    for resource in Resource.objects.filter(last_check_in__isnull=False):
+    for resource in Resource.objects.filter(user=None):
         if now() > resource.reservation_expiration or now() > resource.checkin_expiration:
             release_reservation(resource)
 
