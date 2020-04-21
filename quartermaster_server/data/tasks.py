@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 @db_periodic_task(crontab(minute='*'))
 @lock_task('update_reservations')
 def update_reservations():
+    """
+    This cleaned up reservations whoes time has expired
+    :return: None
+    """
+
     for resource in Resource.objects.filter(user=None):
         if now() > resource.reservation_expiration or now() > resource.checkin_expiration:
             release_reservation(resource)
@@ -22,12 +27,26 @@ def update_reservations():
 @db_periodic_task(crontab(minute='*'))
 @lock_task('update_host_state')
 def confirm_device_state():
+    """
+    This task is responsible for scheduling tasks that update the
+    Quartermaster system to reflect the real state of hardware on remote hosts
+
+    :return: None
+    """
     for host in RemoteHost.objects.all():
         update_host_devices(host)
 
 
 @db_task()
 def update_host_devices(host: RemoteHost):
+    """
+    This take examines every Quartermaster device configured in on a host to confirm if it is online or offline and 
+    reachable.
+
+    :param host: RemoteHost
+    :return: None
+    """
+
     # For each driver
     for host_driver_class in plugins.remote_host_classes().values():
         # If compatible with communicator
