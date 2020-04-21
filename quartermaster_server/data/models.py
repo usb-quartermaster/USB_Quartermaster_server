@@ -11,8 +11,15 @@ from django.db.models import Q, Count
 from django.forms import Textarea
 from django.utils.functional import lazy
 
-from USB_Quartermaster_common import AbstractShareableDeviceDriver, AbstractCommunicator, plugins
-from quartermaster.helpers import get_driver_obj, get_communicator_obj, get_communicator_class
+from USB_Quartermaster_common import \
+    AbstractShareableDeviceDriver, \
+    AbstractCommunicator, \
+    shareable_device_classes, \
+    remote_host_classes, \
+    communicator_classes
+from quartermaster.helpers import get_driver_obj, \
+    get_communicator_obj, \
+    get_communicator_class
 
 
 class ConfigJSON(object):
@@ -105,17 +112,17 @@ class Resource(models.Model):
 
 
 def device_driver_choices() -> List[Tuple[str, str]]:
-    driver_classes = plugins.shareable_device_classes()
+    driver_classes = shareable_device_classes()
     return sorted(list((driver.IDENTIFIER, driver.IDENTIFIER) for driver in driver_classes))
 
 
 def device_host_choices() -> List[Tuple[str, str]]:
-    driver_classes = plugins.remote_host_classes()
+    driver_classes = remote_host_classes()
     return sorted(list((driver.IDENTIFIER, driver.IDENTIFIER) for driver in driver_classes))
 
 
 def communicator_choices() -> List[Tuple[str, str]]:
-    communicator_classes = plugins.communicator_classes()
+    communicator_classes = communicator_classes()
     return sorted(list((driver.IDENTIFIER, driver.IDENTIFIER) for driver in communicator_classes))
 
 

@@ -1,8 +1,11 @@
 import logging
 from typing import Iterable, TYPE_CHECKING, Optional, Type
 
-import plugins
-from USB_Quartermaster_common import AbstractShareableDeviceDriver, AbstractCommunicator
+from USB_Quartermaster_common import \
+    AbstractShareableDeviceDriver, \
+    AbstractCommunicator, \
+    shareable_device_classes, \
+    communicator_classes
 
 if TYPE_CHECKING:
     from data.models import Device, RemoteHost
@@ -18,7 +21,7 @@ def for_all_devices(devices: Iterable['Device'], method: str):
 
 def get_driver_obj(device: 'Device') -> AbstractShareableDeviceDriver:
     driver_impl: Type[AbstractShareableDeviceDriver]
-    for driver_impl in plugins.shareable_device_classes():
+    for driver_impl in shareable_device_classes():
         if device.driver == driver_impl.IDENTIFIER:
             return driver_impl(device)
     raise NotImplementedError(f"Driver for {device} is '{device.driver}' but was not found")
@@ -26,7 +29,7 @@ def get_driver_obj(device: 'Device') -> AbstractShareableDeviceDriver:
 
 def get_communicator_class(name: str) -> Optional[Type[AbstractCommunicator]]:
     communicator_impl: Type[AbstractCommunicator]
-    for communicator_impl in plugins.communicator_classes():
+    for communicator_impl in communicator_classes():
         if name == communicator_impl.IDENTIFIER:
             return communicator_impl
         return None
