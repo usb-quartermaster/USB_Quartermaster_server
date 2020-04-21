@@ -122,8 +122,8 @@ def device_host_choices() -> List[Tuple[str, str]]:
 
 
 def communicator_choices() -> List[Tuple[str, str]]:
-    communicator_classes = communicator_classes()
-    return sorted(list((driver.IDENTIFIER, driver.IDENTIFIER) for driver in communicator_classes))
+    comm_classes = communicator_classes()
+    return sorted(list((driver.IDENTIFIER, driver.IDENTIFIER) for driver in comm_classes))
 
 
 class RemoteHost(models.Model, ConfigJSON):
