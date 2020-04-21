@@ -19,8 +19,6 @@ ALLOWED_HOSTS = ['backend', 'localhost', parsed_server_base_url.netloc]
 
 INSTALLED_APPS.extend([
     'Teamcity',
-    'UsbipOverSSH',
-    'VirtualHereOverSSH'
 ])
 
 DATABASES = {
