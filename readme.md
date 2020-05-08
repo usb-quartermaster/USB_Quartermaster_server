@@ -67,6 +67,8 @@ url for the resource they reserved and by using the qua
     # openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout tls.key  -out tls_chain.crt -subj "/C=CA/ST=ON/L=Kitchener/O=Ops/CN=quartermaster.example.com"
     # If you forgot to generate your certificates before starting services delete the tls.key and tls_chain.crt directories Docker created and run `docker-compose rm frontend` to recover  
     docker-compose up -d
+    # To set up an administrator account
+    docker-compose exec backend ./manage.py createsuperuser 
 
 # How to develop plugins
 ## Add a driver

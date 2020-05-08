@@ -85,7 +85,10 @@ Remove dependence on usbip command, probe /sys directly
     """
     for i in $(find /sys/bus/usb/devices/); do [ ! -f $i/bInterfaceNumber ] && [ -f  "$i/bDeviceClass" ] && grep -qv '09' "$i/bDeviceClass" && echo $(basename $i),$(cat $i/idProduct),$(cat $i/idVendor),$(cat $i/manufacturer),$(cat $i/product); done
 
-
+Remove remote discovery of VirtualHere client
+    https://mathematica.stackexchange.com/questions/198187/how-to-read-a-named-pipe-on-windows
+    Use echo and cat on posix
+    
 Update UI to group devices by pool
 
 

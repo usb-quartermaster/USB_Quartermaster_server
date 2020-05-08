@@ -5,7 +5,7 @@ import pytest
 from Teamcity import tc_allocator
 from Teamcity.conftest import job_id
 # Create your tests here.
-from UsbipOverSSH import UsbipOverSSH
+from USB_Quartermaster_common.example_mocks import MockDevice
 
 
 def test_teamcity_job_is_done(make_teamcity_response):
@@ -81,8 +81,8 @@ def test_teamcity_make_reservation(make_teamcity_response, sample_tc_pool_unused
     monkeypatch.setattr('Teamcity.tc_allocator.TEAMCITY_USER', admin_user)
 
     with patch('Teamcity.tc_allocator.teamcity_request') as teamcity_request:
-        monkeypatch.setattr(UsbipOverSSH, 'get_share_state', lambda _: False)
-        monkeypatch.setattr(UsbipOverSSH, 'start_sharing', lambda _: None)
+        monkeypatch.setattr(MockDevice, 'get_share_state', lambda _: False)
+        monkeypatch.setattr(MockDevice, 'start_sharing', lambda _: None)
         teamcity_request.side_effect = [first_tc_response, second_tc_response]
         tc_allocator.teamcity_make_reservation(tc_pool=sample_tc_pool_unused, job_id=job_id)
 
@@ -92,7 +92,7 @@ def test_teamcity_make_reservation(make_teamcity_response, sample_tc_pool_unused
 @pytest.mark.django_db
 def test_teamcity_make_reservation_none_available(sample_empty_tc_pool, monkeypatch):
     with patch('Teamcity.tc_allocator.teamcity_request') as teamcity_request:
-        monkeypatch.setattr(UsbipOverSSH, 'get_share_state', lambda _: True)
+        monkeypatch.setattr(MockDevice, 'get_share_state', lambda _: True)
         tc_allocator.teamcity_make_reservation(sample_empty_tc_pool, job_id)
         assert 0 == teamcity_request.call_count
 
@@ -116,7 +116,7 @@ def test_teamcity_release_reservation(make_teamcity_response, sample_tc_pool_use
     assert '' != sample_tc_pool_used[1].used_for
     with patch('Teamcity.tc_allocator.teamcity_request') as teamcity_request:
         teamcity_request.side_effect = [first_tc_response, second_tc_response]
-        monkeypatch.setattr(UsbipOverSSH, 'get_share_state', lambda _: False)
+        monkeypatch.setattr(MockDevice, 'get_share_state', lambda _: False)
         tc_allocator.teamcity_release_reservation(resource=sample_tc_pool_used[1])
         assert 2 == teamcity_request.call_count
         assert '' == sample_tc_pool_used[1].used_for
@@ -133,7 +133,7 @@ def test_teamcity_release_reservation_zero(make_teamcity_response, sample_tc_poo
     assert '' != sample_tc_pool_used[1].used_for
     with patch('Teamcity.tc_allocator.teamcity_request') as teamcity_request:
         teamcity_request.side_effect = [first_tc_response, second_tc_response]
-        monkeypatch.setattr(UsbipOverSSH, 'get_share_state', lambda _: False)
+        monkeypatch.setattr(MockDevice, 'get_share_state', lambda _: False)
         tc_allocator.teamcity_release_reservation(resource=sample_tc_pool_used[1])
         assert 1 == teamcity_request.call_count
         assert '' == sample_tc_pool_used[1].used_for
@@ -152,7 +152,7 @@ def test_teamcity_release_reservation_negative(make_teamcity_response, sample_tc
     assert '' != sample_tc_pool_used[1].used_for
     with patch('Teamcity.tc_allocator.teamcity_request') as teamcity_request:
         teamcity_request.side_effect = [first_tc_response, second_tc_response]
-        monkeypatch.setattr(UsbipOverSSH, 'get_share_state', lambda _: False)
+        monkeypatch.setattr(MockDevice, 'get_share_state', lambda _: False)
         tc_allocator.teamcity_release_reservation(resource=sample_tc_pool_used[1])
         assert 2 == teamcity_request.call_count
         assert '' == sample_tc_pool_used[1].used_for

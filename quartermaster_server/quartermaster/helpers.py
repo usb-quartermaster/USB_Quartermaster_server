@@ -32,7 +32,7 @@ def get_communicator_class(name: str) -> Optional[Type[AbstractCommunicator]]:
     for communicator_impl in communicator_classes():
         if name == communicator_impl.IDENTIFIER:
             return communicator_impl
-        return None
+    return None
 
 
 def get_communicator_obj(remote_host: 'RemoteHost') -> AbstractCommunicator:

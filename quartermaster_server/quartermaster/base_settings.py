@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from pathlib import Path
+from USB_Quartermaster_common import plugins
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -136,3 +137,5 @@ LOGGING = {
 
 SSH_CONNECT_TIMEOUT = 1.0
 SSH_EXEC_TIMEOUT = 2.0
+
+plugins.include_mocks = True
