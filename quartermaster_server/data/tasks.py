@@ -4,8 +4,8 @@ from django.utils.timezone import now
 from huey import crontab
 from huey.contrib.djhuey import lock_task, db_periodic_task, db_task
 
+from USB_Quartermaster_common import plugins
 from data.models import Resource, RemoteHost
-from quartermaster import plugins
 from quartermaster.allocator import release_reservation
 
 logger = logging.getLogger(__name__)
