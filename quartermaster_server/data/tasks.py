@@ -48,7 +48,7 @@ def update_host_devices(host: RemoteHost):
     """
 
     # For each driver
-    for host_driver_class in plugins.remote_host_classes().values():
+    for host_driver_class in plugins.remote_host_classes():
         # If compatible with communicator
         if host.communicator not in host_driver_class.SUPPORTED_COMMUNICATORS \
                 or host.type not in host_driver_class.SUPPORTED_HOST_TYPES:
