@@ -16,5 +16,5 @@ docker-compose run -v "$STATIC_FILES_DIR":/deploy/static backend ./manage.py col
 docker-compose build
 
 # Cleanup static files (Doing this in docker to get around any permissions issues)
-docker-compose run -v "$STATIC_FILES_DIR":/deploy/static --workdir /deploy/static backend rm -rf ./*
+docker-compose run -v $STATIC_FILES_DIR:$STATIC_FILES_DIR --workdir $STATIC_FILES_DIR backend rm -rf $STATIC_FILES_DIR/*
 rm -rf "$STATIC_FILES_DIR"
