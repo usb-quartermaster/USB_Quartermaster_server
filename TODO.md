@@ -35,14 +35,6 @@ Andriod ADB support
     VirtualHere driver works better
         I think there is a issue with the USBIP driver where adb size limits on reads are not honored.
 
-for all servers
-  schedule task
-    in task
-      for each connector
-        get all state information
-        update online status
-        if online
-          update share state
 
 
 Create autocomplete for adding host
@@ -51,26 +43,6 @@ Create autocomplete for adding host
 
 Create autocomplete for adding device
     automatically retrieve all suitable devices on host not being used elsewhere 
-    
-    
-Migration plan
-   create remote host table
-   add field to device
-   
-   for each dev
-     get host field
-     host = check if remote host exists for SSH
-     if not create remote host for ssh
-     host = new host
-     delete host field from device
-     update device host field to $host
-     update driver field to "USBIP"
-     save device
-
-
-Update client to
-    embed default server url
-    change reservation arg to only need reservation number
     add server arg to override default
 
 Get rid of json_config. Move to simple key-value, maybe something else.
