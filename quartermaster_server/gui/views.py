@@ -11,7 +11,7 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
-from data.models import Resource
+from data.models import Resource, Pool
 from quartermaster.allocator import release_reservation, make_reservation, update_reservation
 
 logger = logging.getLogger(__name__)
@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 @require_http_methods(("GET",))
 @never_cache
 def list_resources(request):
-    resource_qs = Resource.everything.all()
+    pool_qs = Pool.objects.all()
     return TemplateResponse(request=request,
                             template='resource_list.html',
-                            context={"resources": resource_qs})
+                            context={"pools": pool_qs})
 
 
 def get_resource(func):
