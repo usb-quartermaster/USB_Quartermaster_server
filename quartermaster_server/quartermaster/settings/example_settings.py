@@ -17,9 +17,9 @@ parsed_server_base_url = urlparse(SERVER_BASE_URL)
 
 ALLOWED_HOSTS = ['backend', 'localhost', parsed_server_base_url.netloc]
 
-INSTALLED_APPS.extend([
-    'Teamcity',
-])
+# INSTALLED_APPS.extend([
+#     'Teamcity',
+# ])
 
 DATABASES = {
     'default': {
@@ -49,8 +49,8 @@ cUILVHN/ALWmer4r9A+HAAAAGXRpbS5sYXVyZW5jZUBzcGYzLXRvcGF6LTEBAgME
 -----END OPENSSH PRIVATE KEY-----
 """))
 
-########### TeamCity Intergration ###########
-TEAMCITY_USER = 'REPLACE_THIS'
-TEAMCITY_PASSWORD = 'REPLACE_THIS'
-TEAMCITY_HOST = 'https://REPLACE_THIS'
-TEAMCITY_RESERVATION_USERNAME = 'REPLACE_THIS'
+# ########### TeamCity Intergration ###########
+# TEAMCITY_USER = 'REPLACE_THIS'
+# TEAMCITY_PASSWORD = 'REPLACE_THIS'
+# TEAMCITY_HOST = 'https://REPLACE_THIS'
+# TEAMCITY_RESERVATION_USERNAME = 'REPLACE_THIS'
