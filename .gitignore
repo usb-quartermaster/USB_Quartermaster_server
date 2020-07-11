@@ -7,3 +7,4 @@ __pycache__
 plugins/*
 !plugins/.gitkeep
 USB_Quartermaster_client
+.venv

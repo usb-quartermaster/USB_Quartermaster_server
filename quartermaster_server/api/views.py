@@ -4,10 +4,23 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.urls import reverse
 from rest_framework import serializers, generics, status, permissions, authentication
+from rest_framework.mixins import ListModelMixin
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from data.models import Resource, Device
+from data.models import Resource, Device, RemoteHost, Pool
 from quartermaster.allocator import make_reservation, release_reservation, refresh_reservation
+
+
+class Login(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        content = {
+            'is_authenticated': 'true'
+        }
+        return Response(content)
 
 
 class ReservationSerializer(serializers.ModelSerializer):
@@ -113,22 +126,57 @@ class ReservationResourcePasswordView(ReservationView):
     authentication_classes = [ResourceAuthentication]
 
 
+class HostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RemoteHost
+        fields = ['address', 'type', 'communicator']
+
+
+class DeviceSerializer(serializers.ModelSerializer):
+    host = HostSerializer()
+
+    class Meta:
+        model = Device
+        fields = ['driver', 'name', 'host']
+
+
 class ResourceSerializer(serializers.ModelSerializer):
-
-    def __init__(self, *args, platform: str, **kwargs):
-        super().__init__(*args, **kwargs)
-
     resource_url = serializers.SerializerMethodField()
+    device_set = DeviceSerializer(many=True)
 
     class Meta:
         model = Resource
-        fields = ['used_for', 'last_reserved', 'last_check_in', 'name', 'resource_url']
+        fields = ['used_for', 'last_reserved', 'last_check_in', 'name', 'resource_url', 'device_set']
 
-    def get_resource_url(self, resource_pk):
-        return settings.SERVER_BASE_URL + reverse('api:show_resource', kwargs={"resource_pk": self.instance.pk})
+    def get_resource_url(self, obj):
+        return settings.SERVER_BASE_URL + reverse('api:show_resource', kwargs={"resource_pk": obj.name})
 
 
-class ResourceView(generics.RetrieveAPIView):
+class PoolSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Pool
+        fields = ['name' ]
+
+
+class ResourceDetail(generics.RetrieveAPIView):
     queryset = Resource.objects.all()
     serializer_class = ResourceSerializer
     lookup_url_kwarg = 'resource_pk'
+
+
+class PoolList(generics.ListAPIView, ListModelMixin):
+    queryset = Pool.objects.all()
+    serializer_class = PoolSerializer
+
+
+class ResourceList(generics.ListAPIView, ListModelMixin):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+
+
+class PoolResourceList(ResourceList):
+
+    def get_queryset(self):
+        pool_pk = self.kwargs['pool_pk']
+        return self.queryset.filter(pool=pool_pk)

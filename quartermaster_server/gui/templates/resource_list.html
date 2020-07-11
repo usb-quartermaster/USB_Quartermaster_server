@@ -8,7 +8,7 @@
                     <p> {{ pool.description }}</p>
 
                     <ul class="list-group">
-                        {% for resource in pool.resource_set.all %}
+                        {% for resource in pool.resources.all %}
                             <li class="list-group-item">
                                 <details>
                                     <summary>{{ resource.name }}
@@ -45,7 +45,7 @@
                                         </form>
                                     {% endif %}
                                     <ul class="list-group">
-                                        {% for device in resource.device_set.all %}
+                                        {% for device in resource.devices.all %}
                                             <li class="list-group-item">{{ device.name }} Driver={{ device.driver }}
                                                 {% if device.online %}
                                                     <span class="badge badge-success" role="alert">ONLINE</span>

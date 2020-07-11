@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.urls import path
 
-from api.views import ResourceView, ReservationDjangoAuthView, ReservationResourcePasswordView
+from .views import ResourceDetail, ReservationDjangoAuthView, ReservationResourcePasswordView, Login, ResourceList, \
+    PoolList, PoolResourceList
 
 urlpatterns = [
-
-    path("resource/<str:resource_pk>", ResourceView.as_view(), name='show_resource'),
+    path('login', Login.as_view(), name="login_status"),
+    path("pool/", PoolList.as_view(), name='list_pools'),
+    path("pool/<str:pool_pk>/", PoolResourceList.as_view(), name='list_pool_resources'),
+    path("resource/", ResourceList.as_view(), name='list_resources'),
+    path("resource/<str:resource_pk>", ResourceDetail.as_view(), name='show_resource'),
     path("resource/<str:resource_pk>/reservation",
          ReservationDjangoAuthView.as_view(), name='show_reservation'),
     path("resource/<str:resource_pk>/reservation/<str:resource_password>",

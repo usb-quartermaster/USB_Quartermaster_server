@@ -12,11 +12,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from pathlib import Path
+
 from USB_Quartermaster_common import plugins
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
+
+CORS_ORIGIN_ALLOW_ALL = False
 
 # Application definition
 
@@ -27,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'huey.contrib.djhuey',  # Provides Task scheduling
     'rest_framework',  # Makes nice API
     'rest_framework.authtoken',  # Only needed if using clients that self authenticate such as in CI
@@ -34,9 +38,11 @@ INSTALLED_APPS = [
     'data',  # This is the core datastore that everything else hangs off of
     'gui',  # UI for user interactive interface
     'api',  # API, used to support client
+    'ui'  # SPA frontend
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -70,7 +70,7 @@ class Resource(models.Model):
     """
     UNUSED = [None, ""]
 
-    pool = models.ForeignKey(Pool, blank=False, null=False, on_delete=models.CASCADE)
+    pool = models.ForeignKey(Pool, related_name='resources', blank=False, null=False, on_delete=models.CASCADE)
     name = models.SlugField(blank=False, null=False, primary_key=True)
     description = models.TextField()
     last_check_in = models.DateTimeField(null=True, blank=True)
