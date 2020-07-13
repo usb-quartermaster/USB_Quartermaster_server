@@ -1,8 +1,6 @@
 import React from 'react';
-import axios from 'axios';
+import {qm_server, refresh_frequency_ms} from './Config';
 import Pool from "./Pool";
-
-const api_base = 'http://localhost:8000/api/v1'
 
 
 class Pools extends React.Component {
@@ -11,40 +9,39 @@ class Pools extends React.Component {
         this.state = {
             pools: [],
             initialized: false,
-            check_in_progress : false
+            check_in_progress: false
         };
 
     }
 
     get_pools() {
-        axios.get(`${api_base}/pool`)
+        const path='/pool/'
+        qm_server.get(path)
             .then((response) => {
-                    console.log(response)
-                    this.setState({ pools: response.data, initialized: true })
+                    this.setState({pools: response.data, initialized: true})
                 }
             )
             .catch((error) => {
                 console.log(error)
-                alert(`Unexpected response from server, rc=${error.status} message=${error.data}`)
+                alert(`Unexpected response from server, path=${path}, rc=${error.status} message=${error.data}`)
             })
     }
 
     componentDidMount() {
-        setInterval(() => this.get_pools(), 10000)
+        setInterval(() => this.get_pools(), refresh_frequency_ms)
         this.get_pools()
     }
 
-render()
-{
-    let { pools, initialized } = this.state
-    if (pools.length) {
-        return (<div>{pools.map(pool => <Pool key={pool.name} pool={pool}/>)}</div>)
-    } else if (initialized) {
-        return (<p>No pools found</p>)
-    } else {
-        return (<p>Retrieving pools</p>)
+    render() {
+        let {pools, initialized} = this.state
+        if (pools.length) {
+            return (<div>{pools.map(pool => <Pool key={pool.name} pool={pool}/>)}</div>)
+        } else if (initialized) {
+            return (<p>No pools found</p>)
+        } else {
+            return (<p>Retrieving pools</p>)
+        }
     }
-}
 
 }
 

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import Button from 'react-bootstrap/Button';
+import Button from "react-bootstrap/Button";
 import {qm_server} from "./Config";
 import Devices from "./Devices";
 
-class Resource extends Component {
+class ReserveredResource extends Component {
     constructor(props) {
         super(props);
         let {resource, update_func} = props
@@ -11,22 +11,24 @@ class Resource extends Component {
         this.state = {resource: resource}
     }
 
-    reserve_resource = (event, resource) => {
-        console.log(resource)
+    release_reservation = () => {
+        let resource = this.state.resource
         let path = `resource/${resource.name}/reservation`
-        qm_server.post(path).then((resp) => this.update_resource(resp.data))
+        qm_server.delete(path).then((resp) => this.update_resource(resp.data))
     }
 
     render() {
-        let {resource} = this.state
+        let resource = this.state.resource
+
         return (
             <div>
-                <p>{resource.name}</p>
-                <Button onClick={(e) => this.reserve_resource(e, resource)}>Reserve</Button>
+                <p>{resource.name} Used by {resource.used_for}</p>
+                <Button onClick={(e) => this.release_reservation(e, resource)}>Release</Button>
                 <Devices devices={resource.device_set}></Devices>
             </div>
         );
     }
 }
 
-export default Resource;
+
+export default ReserveredResource;

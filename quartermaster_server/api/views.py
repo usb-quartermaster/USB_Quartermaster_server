@@ -23,25 +23,91 @@ class Login(APIView):
         return Response(content)
 
 
-class ReservationSerializer(serializers.ModelSerializer):
+class ResourceAuthentication(authentication.BaseAuthentication):
+    """
+    This allows the use of resources passwords to authenticate.
+    On the face this doesn't look great but those passwords will only be presented to authenticated
+    users and are rotated when a reservation is complete.
+    """
+
+    def authenticate(self, request):
+        resource_pk = request.parser_context['kwargs']['resource_pk']
+        resource_password = request.parser_context['kwargs']['resource_password']
+        resource = Resource.objects.get(pk=resource_pk)
+
+        if resource.user is None:
+            return None
+        if resource.use_password != resource_password:
+            return None
+
+        return (resource.user, None)
+
+
+class HostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RemoteHost
+        fields = ['address', 'type', 'communicator']
+
+
+class DeviceSerializer(serializers.ModelSerializer):
+    host = HostSerializer()
+
+    class Meta:
+        model = Device
+        fields = ['driver', 'name', 'host']
+
+
+class ResourceSerializer(serializers.ModelSerializer):
+    resource_url = serializers.SerializerMethodField()
+    device_set = DeviceSerializer(many=True)
+
+    class Meta:
+        model = Resource
+        fields = ['user', 'used_for', 'last_reserved', 'last_check_in', 'name', 'device_set', 'resource_url']
+
+    def get_resource_url(self, obj):
+        return settings.SERVER_BASE_URL + reverse('api:show_resource', kwargs={"resource_pk": obj.name})
+
+
+class PoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pool
+        fields = ['name']
+
+
+class ResourceDetail(generics.RetrieveAPIView):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+    lookup_url_kwarg = 'resource_pk'
+
+
+class PoolList(generics.ListAPIView, ListModelMixin):
+    queryset = Pool.objects.all()
+    serializer_class = PoolSerializer
+
+
+class ResourceList(generics.ListAPIView, ListModelMixin):
+    queryset = Resource.objects.all()
+    serializer_class = ResourceSerializer
+
+
+class PoolResourceList(ResourceList):
+
+    def get_queryset(self):
+        pool_pk = self.kwargs['pool_pk']
+        return self.queryset.filter(pool=pool_pk)
+
+
+class ReservationSerializer(ResourceSerializer):
     reservation_url = serializers.SerializerMethodField()
-    devices = serializers.SerializerMethodField()
     lookup_url_kwarg = 'resource_pk'
 
     class Meta:
         model = Resource
-        fields = ['user', 'used_for', 'use_password', 'devices', 'reservation_url', 'reservation_expiration']
+        fields = ResourceSerializer.Meta.fields + ['reservation_url', 'reservation_expiration']
 
     def get_reservation_url(self, resource_pk):
         return settings.SERVER_BASE_URL + reverse('api:show_reservation', kwargs={"resource_pk": self.instance.pk})
-
-    def get_devices(self, resource_pk):
-        devices = []
-        device: Device  # Type hint for the loop
-        for device in self.instance.device_set.all():
-            devices.append(
-                {**device.config, 'host_address': device.host.address, 'driver': device.driver, 'name': str(device)})
-        return devices
 
 
 class ReservationView(generics.GenericAPIView):
@@ -80,7 +146,7 @@ class ReservationView(generics.GenericAPIView):
         release_reservation(self.resource)
         self.resource.refresh_from_db()
         serializer = self.get_serializer(self.resource)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.data)
 
     def patch(self, request, *args, **kwargs):
         refresh_reservation(resource=self.resource)
@@ -102,81 +168,5 @@ class ReservationDjangoAuthView(ReservationView):
     pass
 
 
-class ResourceAuthentication(authentication.BaseAuthentication):
-    """
-    This allows the use of resources passwords to authenticate.
-    On the face this doesn't look great but those passwords will only be presented to authenticated
-    users and are rotated when a reservation is complete.
-    """
-
-    def authenticate(self, request):
-        resource_pk = request.parser_context['kwargs']['resource_pk']
-        resource_password = request.parser_context['kwargs']['resource_password']
-        resource = Resource.objects.get(pk=resource_pk)
-
-        if resource.user is None:
-            return None
-        if resource.use_password != resource_password:
-            return None
-
-        return (resource.user, None)
-
-
 class ReservationResourcePasswordView(ReservationView):
     authentication_classes = [ResourceAuthentication]
-
-
-class HostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RemoteHost
-        fields = ['address', 'type', 'communicator']
-
-
-class DeviceSerializer(serializers.ModelSerializer):
-    host = HostSerializer()
-
-    class Meta:
-        model = Device
-        fields = ['driver', 'name', 'host']
-
-
-class ResourceSerializer(serializers.ModelSerializer):
-    resource_url = serializers.SerializerMethodField()
-    device_set = DeviceSerializer(many=True)
-
-    class Meta:
-        model = Resource
-        fields = ['used_for', 'last_reserved', 'last_check_in', 'name', 'resource_url', 'device_set']
-
-    def get_resource_url(self, obj):
-        return settings.SERVER_BASE_URL + reverse('api:show_resource', kwargs={"resource_pk": obj.name})
-
-
-class PoolSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Pool
-        fields = ['name' ]
-
-
-class ResourceDetail(generics.RetrieveAPIView):
-    queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
-    lookup_url_kwarg = 'resource_pk'
-
-
-class PoolList(generics.ListAPIView, ListModelMixin):
-    queryset = Pool.objects.all()
-    serializer_class = PoolSerializer
-
-
-class ResourceList(generics.ListAPIView, ListModelMixin):
-    queryset = Resource.objects.all()
-    serializer_class = ResourceSerializer
-
-
-class PoolResourceList(ResourceList):
-
-    def get_queryset(self):
-        pool_pk = self.kwargs['pool_pk']
-        return self.queryset.filter(pool=pool_pk)

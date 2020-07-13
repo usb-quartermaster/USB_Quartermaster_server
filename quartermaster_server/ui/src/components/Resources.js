@@ -1,9 +1,7 @@
 import React from 'react';
-import axios from 'axios';
+import {qm_server, refresh_frequency_ms} from './Config';
 import Resource from "./Resource";
-
-const api_base = 'http://localhost:8000/api/v1'
-
+import ReserveredResource from "./ReserveredResource";
 
 class Resources extends React.Component {
     constructor(props) {
@@ -11,37 +9,55 @@ class Resources extends React.Component {
         this.state = {
             resources: [],
             initialized: false,
-            check_in_progress: false
         };
 
     }
 
     get_resources() {
-        axios.get(`${api_base}/resource`)
+        const path = '/resource/';
+        qm_server.get(path)
             .then((response) => {
-                    console.log(response)
-                    this.setState({ resources: response.data, initialized: true })
+                    this.setState({resources: response.data, initialized: true})
                 }
             )
             .catch((error) => {
                 console.log(error)
-                alert(`Unexpected response from server, rc=${error.status} message=${error.data}`)
+                alert(`Unexpected response from server, path=${path}, rc=${error.status} message=${error.data}`)
             })
     }
 
     componentDidMount() {
-        setInterval(() => this.get_resources(), 10000)
+        setInterval(() => this.get_resources(), refresh_frequency_ms)
         this.get_resources()
     }
 
+    update_resource(updated_resource) {
+        const update_resource = (original_resource) => {
+            if (original_resource.name === updated_resource.name)
+                return updated_resource
+            else
+                return original_resource
+        }
+        let new_state = {resources: this.state.resources.map(update_resource), ...this.state}
+        console.log(new_state)
+        this.setState(new_state)
+    }
+
     render() {
-        let { resources, initialized } = this.state
+        let {resources, initialized} = this.state
         if (resources.length) {
-            return (<div>{resources.map(resource => <Resource key={resource.name} resource={resource}/>)}</div>)
+            return (
+                <div>{resources.map(resource => {
+                    return (resource.user ? <ReserveredResource key={resource.name} resource={resource}
+                                                                update_func={this.update_resource.bind(this)}/> :
+                        <Resource key={resource.name} resource={resource}
+                                  update_func={this.update_resource.bind(this)}/>)
+                })}</div>
+            )
         } else if (initialized) {
-            return (<p>No pools found</p>)
+            return (<p>No resources found</p>)
         } else {
-            return (<p>Retrieving pools</p>)
+            return (<p>Retrieving resources</p>)
         }
     }
 
